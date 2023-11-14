@@ -17,8 +17,11 @@ jobs:
       BUCKET_NAME: ${{ secrets.AWS_SAM_S3_BUCKET }}
     
     steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+        
       - name: Build and deploy
-        working-directory: kjell
+        working-directory: kjell/
         run: |
           sam build --use-container
           sam deploy
