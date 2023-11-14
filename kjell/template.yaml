@@ -23,6 +23,10 @@ Resources:
       CodeUri: hello_world/
       Handler: app.lambda_handler
       Runtime: python3.9
+      Environment: 
+        Variables: 
+#          BUCKET_NAME: "kjellsimagebucket"
+          BUCKET_NAME:
       Architectures:
         - x86_64
       Policies:
