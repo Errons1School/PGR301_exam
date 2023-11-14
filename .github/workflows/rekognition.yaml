@@ -18,7 +18,6 @@ jobs:
     
     steps:
       - name: Build and deploy
-        uses: actions/checkout@v3
         working-directory: kjell/
         run: |
           sam build --use-container
