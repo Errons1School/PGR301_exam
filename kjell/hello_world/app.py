@@ -16,7 +16,7 @@ s3_client = boto3.client('s3', region_name='eu-west-1')
 rekognition_client = boto3.client('rekognition', region_name='eu-west-1')
 
 # Oppgave 1A
-BUCKET_NAME = "kjellsimagebucker"
+BUCKET_NAME = "candidate2014"
 
 def lambda_handler(event, context):
 
