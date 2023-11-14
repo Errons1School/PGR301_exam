@@ -1,7 +1,6 @@
 import json
 import boto3
 import os
-import sys
 
 # Denne koden kan også kjøres som en selvstendig applikasjon (Uten SAM) bare gjøre følgende
 # (dersom man har python på maskinen sin altså...)

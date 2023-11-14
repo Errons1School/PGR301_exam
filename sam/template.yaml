@@ -10,6 +10,10 @@ Globals:
   Function:
     Timeout: 60
     MemorySize: 512
+    Environment:
+      Variables:
+#        BUCKET_NAME: kjellsimagebucket
+        BUCKET_NAME: candidate2024
 
 Resources:
   Bucket:
@@ -22,9 +26,6 @@ Resources:
       CodeUri: rekognition_protective_wear/
       Handler: app.lambda_handler
       Runtime: python3.9
-      Environment:
-        Variables:
-          BUCKET_NAME: candidate2014
       Architectures:
         - x86_64
       Policies:
