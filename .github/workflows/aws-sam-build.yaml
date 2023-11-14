@@ -19,6 +19,6 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Build and deploy
-        working-directory: kjell/
+        working-directory: sam/
         run: |
           sam build --use-container
