@@ -10,22 +10,21 @@ Globals:
   Function:
     Timeout: 60
     MemorySize: 512
-    Environment:
-      Variables:
-        BUCKET_NAME: candidate2014
 
 Resources:
-
   Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: ${BUCKET_NAME}
+      BucketName: candidate2024
   RekognitionProtectiveWearFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: rekognition_protective_wear/
       Handler: app.lambda_handler
       Runtime: python3.9
+      Environment:
+        Variables:
+          BUCKET_NAME: candidate2014
       Architectures:
         - x86_64
       Policies:
