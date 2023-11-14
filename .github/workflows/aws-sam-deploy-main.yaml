@@ -1,4 +1,4 @@
-name: "AWS SAM Rekognition"
+name: "AWS SAM Rekognition build and deploy"
 
 on:
   pull_request:
