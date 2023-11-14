@@ -18,7 +18,7 @@ jobs:
     
     steps:
       - name: Build and deploy
-        working-directory: kjell/
+        working-directory: kjell
         run: |
           sam build --use-container
           sam deploy
