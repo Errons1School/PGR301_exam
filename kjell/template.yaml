@@ -25,8 +25,7 @@ Resources:
       Runtime: python3.9
       Environment: 
         Variables: 
-#          BUCKET_NAME: "kjellsimagebucket"
-          BUCKET_NAME: Insert-GitHub-Secrets
+          BUCKET_NAME: kjellsimagebucket
       Architectures:
         - x86_64
       Policies:

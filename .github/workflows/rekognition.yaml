@@ -26,7 +26,7 @@ jobs:
 #          sam build --use-container
 #          sam deploy
 
-  build-deploy:
+  build-and-deploy-SAM:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
