@@ -1,6 +1,9 @@
 name: "SAM build and deploy"
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
