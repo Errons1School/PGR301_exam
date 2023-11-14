@@ -19,6 +19,6 @@ jobs:
         
     steps:
       - run: |
-          cd ./kjell/
+          cd kjell/
           sam build --use-container
           sam deploy
