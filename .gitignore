@@ -1,3 +1,4 @@
+*/target/
 *.idea/
 *.iml
-/sam/.aws-sam/
+/kjell/.aws-sam/

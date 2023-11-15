@@ -22,7 +22,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       
       - name: Build and deploy
-        working-directory: sam/
+        working-directory: kjell/
         run: |
           sam build --use-container
           sam deploy --no-confirm-changeset --no-fail-on-empty-changeset 
