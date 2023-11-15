@@ -78,4 +78,4 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ${{ env.DIR }}
-        run: terraform apply -var="prefix=$PREFIX" -var="image=$IMAGE" --auto-approve
+        run: terraform apply -var="prefix=$PREFIX" -var="apprunner_image=$IMAGE" --auto-approve
