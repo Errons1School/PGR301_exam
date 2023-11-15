@@ -1,4 +1,4 @@
-name: "SAM build"
+name: "AWS SAM build"
 
 on:
   push:
