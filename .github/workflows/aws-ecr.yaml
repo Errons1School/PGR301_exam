@@ -53,7 +53,7 @@ jobs:
     
     steps: 
       - if: github.ref_name != 'main'
-        run: exit 1
+        run: exit 0
       
       - uses: actions/checkout@v3
         
