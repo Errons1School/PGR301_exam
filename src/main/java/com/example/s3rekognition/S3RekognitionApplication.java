@@ -17,7 +17,6 @@ public class S3RekognitionApplication {
         SpringApplication.run(S3RekognitionApplication.class, args);
     }
     
-//    Need flag "-aws-region=<region>" when running this!
     @Bean
     public AmazonS3 amazonS3(@Value("${aws-region: eu-west-1}") String awsRegion) {
         return AmazonS3ClientBuilder.standard().withRegion(awsRegion).build();
@@ -27,6 +26,5 @@ public class S3RekognitionApplication {
     public AmazonRekognition amazonRekognition(@Value("${aws-region: eu-west-1}") String awsRegion) {
         return AmazonRekognitionClientBuilder.standard().withRegion(awsRegion).build();
     }
-    
     
 }
