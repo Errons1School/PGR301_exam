@@ -1,12 +1,15 @@
-name: "SAM build"
+name: "AWS SAM"
 
 on:
   push:
-    branches-ignore:
-      - main
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
 
 jobs:
-  build-SAM:
+  build-and-deploy-SAM:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,8 +20,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Build and deploy
-        working-directory: sam/
+      
+      - name: Build
+        working-directory: kjell/
         run: |
           sam build --use-container
+      
+      - name: Deploy
+        if: github.repository == 'main'
+        run: |
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset 
