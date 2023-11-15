@@ -77,6 +77,5 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         working-directory: ${{ env.DIR }}
         run: terraform apply -var="prefix=$PREFIX" -var="image=$IMAGE" --auto-approve
