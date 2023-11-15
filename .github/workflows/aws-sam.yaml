@@ -1,12 +1,12 @@
-name: "AWS SAM build & deploy"
+name: "AWS SAM"
 
 on:
   push:
     branches:
-      - main
+      - *
   pull_request:
     branches:
-      - main
+      - *
 
 jobs:
   build-and-deploy-SAM:
@@ -21,8 +21,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       
-      - name: Build and deploy
+      - name: Build
         working-directory: kjell/
         run: |
           sam build --use-container
+      
+      - name: Deploy
+        if: github.repository == 'main'
+        run: |
           sam deploy --no-confirm-changeset --no-fail-on-empty-changeset 
