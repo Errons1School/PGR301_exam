@@ -1,5 +1,11 @@
+# intellij 
 *.idea/
 *.iml
 
-/kjell/.aws-sam/
+# Compile targets
+*.aws-sam/
 *target/
+
+# Terraform
+*.terraform/
+*.terraform.lock.hcl

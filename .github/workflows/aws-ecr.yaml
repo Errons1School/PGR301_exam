@@ -27,7 +27,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_URL }}
-          rev=$(git rev-parse --short HEAD)
+          rev=$(git rev-parse --short HEAD) 
           docker build . -t app
           docker tag app ${{ secrets.AWS_ECR_URL }}/candidate2024:$rev
           docker tag app ${{ secrets.AWS_ECR_URL }}/candidate2024:latest
