@@ -1,0 +1,29 @@
+name: "AWS ECR build"
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  # Builds a new container image, and pushes it on every commit to the repository
+  # Also pushes a tag called "latest" to track the lates commit
+  build_docker_image:
+    name: Push Docker image to ECR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Build and push Docker image
+        uses: aws-actions/configure-aws-credentials@v2
+        env:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_URL }}
+          rev=$(git rev-parse --short HEAD)
+          docker build . -t app
+          docker tag app ${{ secrets.AWS_ECR_URL }}/candidate2024:$rev
+          docker tag app ${{ secrets.AWS_ECR_URL }}/candidate2024:latest
