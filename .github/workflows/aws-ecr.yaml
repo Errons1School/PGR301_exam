@@ -3,10 +3,10 @@ name: "AWS ECR build & deploy"
 on:
   push:
     branches:
-      - *
+      - '**'
   pull_request:
     branches:
-      - *
+      - '**'
 
 jobs:
   build_docker_image:

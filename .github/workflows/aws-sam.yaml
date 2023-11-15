@@ -3,10 +3,10 @@ name: "AWS SAM"
 on:
   push:
     branches:
-      - *
+      - '**'
   pull_request:
     branches:
-      - *
+      - '**'
 
 jobs:
   build-and-deploy-SAM:
