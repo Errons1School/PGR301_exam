@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  build_docker_image:
+  build-and-deploy-docker-image:
     name: Push Docker image to ECR
     runs-on: ubuntu-latest
     steps:
@@ -35,5 +35,6 @@ jobs:
       - name: Push Docker image
         if: github.ref_name == 'main'
         run: |
+          rev=$(git rev-parse --short HEAD)
           docker push ${{ secrets.AWS_ECR_URL }}/candidate2024:$rev
           docker push ${{ secrets.AWS_ECR_URL }}/candidate2024:latest

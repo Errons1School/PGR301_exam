@@ -27,6 +27,7 @@ jobs:
           sam build --use-container
       
       - name: Deploy
+        working-directory: kjell/
         if: github.ref_name == 'main'
         run: |
           sam deploy --no-confirm-changeset --no-fail-on-empty-changeset 
