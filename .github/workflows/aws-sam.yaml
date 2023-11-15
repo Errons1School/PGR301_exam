@@ -27,6 +27,6 @@ jobs:
           sam build --use-container
       
       - name: Deploy
-        if: github.repository == 'main'
+        if: github.ref_name == 'main'
         run: |
           sam deploy --no-confirm-changeset --no-fail-on-empty-changeset 

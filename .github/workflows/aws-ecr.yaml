@@ -33,7 +33,7 @@ jobs:
           docker tag app ${{ secrets.AWS_ECR_URL }}/candidate2024:latest
           
       - name: Push Docker image
-        if: github.repository == 'main'
+        if: github.ref_name == 'main'
         run: |
           docker push ${{ secrets.AWS_ECR_URL }}/candidate2024:$rev
           docker push ${{ secrets.AWS_ECR_URL }}/candidate2024:latest
