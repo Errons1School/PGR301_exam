@@ -51,10 +51,11 @@ jobs:
       PREFIX: candidate2024
       DIR: ./infra
     
-    steps:
-      - uses: actions/checkout@v3
-        if: github.ref_name != 'main'
+    steps: 
+      - if: github.ref_name != 'main'
         run: exit 1
+      
+      - uses: actions/checkout@v3
         
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
