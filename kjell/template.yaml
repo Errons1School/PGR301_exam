@@ -13,7 +13,7 @@ Globals:
     Environment:
       Variables:
 #        BUCKET_NAME: kjellsimagebucket
-        BUCKET_NAME: candidate2024
+        BUCKET_NAME: candidate2014
 
 Resources:
   Bucket:
