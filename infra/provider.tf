@@ -6,8 +6,8 @@ terraform {
     }
   }
   backend "s3" {
-    bucket = "candidate2024-terraform-state"
-    key    = "candidate2024-terraform.state"
+    bucket = "candidate2014-terraform-state"
+    key    = "candidate2014-terraform.state"
     region = "eu-west-1"
   }
 }
