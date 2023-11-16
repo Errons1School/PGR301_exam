@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.example.s3rekognition.PPEClassificationResponse;
 import com.example.s3rekognition.PPEResponse;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -23,13 +24,15 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     private final AmazonS3 s3Client;
     private final AmazonRekognition rekognitionClient;
+    private final MeterRegistry meterRegistry;
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
 
     @Autowired
-    public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient) {
+    public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient, MeterRegistry meterRegistry) {
         this.s3Client = s3Client;
         this.rekognitionClient = rekognitionClient;
+        this.meterRegistry = meterRegistry;
     }
 
     /**

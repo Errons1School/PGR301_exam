@@ -15,19 +15,10 @@ import java.util.Map;
 
 @Configuration
 public class MetricsConfig {
-
-    @Value("${aws-region: eu-west-1}")
-    private String awsRegion;
     
     @Bean
     public CloudWatchAsyncClient cloudWatchAsyncClient() {
-        Region region;
-        try {
-            region = Region.of(awsRegion);
-        } catch (Exception error) {
-            region = Region.EU_WEST_1;
-        }
-        return CloudWatchAsyncClient.builder().region(region).build();
+        return CloudWatchAsyncClient.builder().region(Region.EU_WEST_1).build();
     }
 
     @Bean
