@@ -7,13 +7,17 @@ import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.example.s3rekognition.PPEClassificationResponse;
 import com.example.s3rekognition.PPEResponse;
+import com.example.s3rekognition.TextRekognition;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -24,14 +28,16 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     private final AmazonS3 s3Client;
     private final AmazonRekognition rekognitionClient;
+    private final TextRekognition textRekognition;
     private final MeterRegistry meterRegistry;
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
 
     @Autowired
-    public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient, MeterRegistry meterRegistry) {
+    public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient, TextRekognition textRekognition, MeterRegistry meterRegistry) {
         this.s3Client = s3Client;
         this.rekognitionClient = rekognitionClient;
+        this.textRekognition = textRekognition;
         this.meterRegistry = meterRegistry;
     }
 
@@ -98,6 +104,45 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
                 .flatMap(p -> p.getBodyParts().stream())
                 .anyMatch(bodyPart -> bodyPart.getName().equals("FACE")
                         && bodyPart.getEquipmentDetections().isEmpty());
+    }
+
+    /**
+     * Takes in pictures from POST and detects what Text is in them
+     *
+     * @param files sent inn as HTTP POST multipart/form-data
+     * @return String of response from AWS Rekognition
+     */
+    @PostMapping("/scan-text")
+    public ResponseEntity<Object> scanTextOnImage(@RequestParam("file") MultipartFile[] files) {
+        if (files.length == 0) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        StringBuilder response = new StringBuilder();
+        try {
+            for (var multipartFile : files) {
+                response.append(textRekognition.detectTextLabels(multipartFile.getInputStream()));
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+    }
+
+    /**
+     * Takes images from resources/images and send them to AWS rekognition
+     * @param id needs to be between 1-4
+     * @return String of response from AWS Rekognition
+     */
+    @GetMapping("/scan-text-backup/{id}")
+    public ResponseEntity<Object> scanTextOnImageBackup(@PathVariable int id) {
+        if (id < 1 || id > 4) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        
+        String response; 
+        try {
+            response = textRekognition.detectTextLabels(ClassLoader.getSystemResourceAsStream("images/img" + id + ".jpg"));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
