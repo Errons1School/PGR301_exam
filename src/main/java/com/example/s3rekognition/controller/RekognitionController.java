@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -46,8 +45,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      * Files in the bucket for Protective Gear Violations.
      * <p>
      *
-     * @param bucketName
-     * @return
+     * @param bucketName bucket name
+     * @return json
      */
     @GetMapping(value = "/scan-ppe", consumes = "*/*", produces = "application/json")
     @ResponseBody
@@ -62,6 +61,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         List<S3ObjectSummary> images = imageList.getObjectSummaries();
 
         // Iterate over each object and scan for PPE
+        final float MIN_CONFIDENCE = 80f;
         for (S3ObjectSummary image : images) {
             logger.info("scanning " + image.getKey());
 
@@ -72,7 +72,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
                                     .withBucket(bucketName)
                                     .withName(image.getKey())))
                     .withSummarizationAttributes(new ProtectiveEquipmentSummarizationAttributes()
-                            .withMinConfidence(80f)
+                            .withMinConfidence(MIN_CONFIDENCE)
                             .withRequiredEquipmentTypes("FACE_COVER"));
 
             DetectProtectiveEquipmentResult result = rekognitionClient.detectProtectiveEquipment(request);
@@ -96,8 +96,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      * each body part of the person. If the body part is a FACE and there is no
      * protective gear on it, a violation is recorded for the picture.
      *
-     * @param result
-     * @return
+     * @param result result
+     * @return string
      */
     private static boolean isViolation(DetectProtectiveEquipmentResult result) {
         return result.getPersons().stream()
