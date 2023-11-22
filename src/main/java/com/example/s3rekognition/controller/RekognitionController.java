@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.example.s3rekognition.PPEClassificationResponse;
 import com.example.s3rekognition.PPEResponse;
 import com.example.s3rekognition.TextRekognition;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -30,10 +31,13 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final TextRekognition textRekognition;
     private final MeterRegistry meterRegistry;
 
+    private static int totalPPEScan = 0;
+    private static int totalTextScan = 0;
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
 
     @Autowired
-    public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient, TextRekognition textRekognition, MeterRegistry meterRegistry) {
+    public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient, 
+                                 TextRekognition textRekognition, MeterRegistry meterRegistry) {
         this.s3Client = s3Client;
         this.rekognitionClient = rekognitionClient;
         this.textRekognition = textRekognition;
@@ -85,6 +89,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             int personCount = result.getPersons().size();
             PPEClassificationResponse classification = new PPEClassificationResponse(image.getKey(), personCount, violation);
             classificationResponses.add(classification);
+            totalPPEScan++;
         }
         PPEResponse ppeResponse = new PPEResponse(bucketName, classificationResponses);
         return ResponseEntity.ok(ppeResponse);
@@ -115,11 +120,14 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     @PostMapping("/scan-text")
     public ResponseEntity<Object> scanTextOnImage(@RequestParam("file") MultipartFile[] files) {
         if (files.length == 0) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
+        logger.info(String.format("Scanning %d files", files.length));
+        
         StringBuilder response = new StringBuilder();
         try {
-            for (var multipartFile : files) {
+            for (MultipartFile multipartFile : files) {
+                logger.info("Scanning file " + multipartFile.getName());
                 response.append(textRekognition.detectTextLabels(multipartFile.getInputStream()));
+                totalTextScan++;
             }
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -139,6 +147,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         String response; 
         try {
             response = textRekognition.detectTextLabels(ClassLoader.getSystemResourceAsStream("images/img" + id + ".jpg"));
+            totalPPEScan++;
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -148,6 +157,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-
+        Gauge.builder("PPE_scan_count", totalPPEScan, s -> s).register(meterRegistry);
+        Gauge.builder("Text_scan_count", totalTextScan, s -> s).register(meterRegistry);
     }
 }
