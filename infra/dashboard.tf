@@ -15,7 +15,7 @@ resource "aws_cloudwatch_dashboard" "main" {
           ],
           "view" : "gauge",
           "region" : var.region,
-          "stat" : "Sum",
+          "stat" : "Maximum",
           "period" : 60,
           "yAxis" : {
             "left" : {
@@ -43,7 +43,7 @@ resource "aws_cloudwatch_dashboard" "main" {
           ],
           "view" : "gauge",
           "region" : var.region,
-          "stat" : "Sum",
+          "stat" : "Maximum",
           "period" : 60,
           "title" : "Total PPE scan",
           "yAxis" : {
