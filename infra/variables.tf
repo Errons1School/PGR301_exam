@@ -1,5 +1,6 @@
 variable "prefix" {
   type = string
+  default = "candidate2014"
 }
 
 variable "region" {
@@ -9,6 +10,7 @@ variable "region" {
 
 variable "apprunner_image" {
   type = string
+  default = "244530008913.dkr.ecr.eu-west-1.amazonaws.com/candidate2014:latest"
 }
 
 variable "apprunner_cpu" {

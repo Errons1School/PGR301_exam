@@ -1,38 +1,57 @@
 resource "aws_cloudwatch_dashboard" "main" {
   dashboard_name = "${ var.prefix }-dashboard"
   dashboard_body = jsonencode({
-    widgets = [
+    "widgets" : [
       {
-        type   = "metric"
-        x      = 0
-        y      = 0
-        width  = 6
-        height = 6
+        "type"   : "metric"
+        "x"      : 0
+        "y"      : 0
+        "width"  : 6
+        "height" : 6
 
-        properties = {
-          metrics = [
-            [
-              "AWS/EC2",
-              "CPUUtilization",
-              "InstanceId",
-              "i-012345"
-            ]
-          ]
-          period = 300
-          stat   = "Average"
-          region = "eu-west-1"
-          title  = "EC2 Instance CPU"
+        "properties" : {
+          "metrics" : [
+            ["candidate2014-dashboard", "Text_scan_count.value"]
+          ],
+          "view" : "gauge",
+          "region" : var.region,
+          "stat" : "Sum",
+          "period" : 60,
+          "yAxis" : {
+            "left" : {
+              "min" : 0,
+              "max" : 10000
+            }
+          },
+          "legend" : {
+            "position" : "bottom"
+          },
+          "title" : "Total text scan"
         }
       },
       {
-        type   = "text"
-        x      = 0
-        y      = 7
-        width  = 3
-        height = 3
-
-        properties = {
-          markdown = "Hello world"
+        "type"   : "metric"
+        "x"      : 6
+        "y"      : 0
+        "width"  : 6
+        "height" : 6
+        
+        "properties" : {
+          
+        "metrics" : [
+          ["candidate2014-dashboard", "PPE_scan_count.value"]
+        ],
+          "view" : "gauge",
+          "region" : var.region,
+          "stat" : "Sum",
+          "period" : 60,
+          "title" : "Total PPE scan",
+          "yAxis" : {
+            "left" : {
+              "min" : 0,
+              "max" : 10000
+            }
+          }
         }
       }
     ]

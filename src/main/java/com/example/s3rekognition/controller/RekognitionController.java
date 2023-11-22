@@ -43,6 +43,11 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         this.textRekognition = textRekognition;
         this.meterRegistry = meterRegistry;
     }
+    
+    @GetMapping("/")
+    public ResponseEntity<Object> helloWorld() {
+        return new ResponseEntity<>("Hello World", HttpStatus.OK);
+    }
 
     /**
      * This endpoint takes an S3 bucket name in as an argument, scans all the
