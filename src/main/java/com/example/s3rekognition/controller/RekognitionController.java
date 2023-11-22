@@ -34,6 +34,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private static int totalPPEScan = 15;
     private static int totalTextScan = 17;
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
+    private static int counter = 0;
 
     @Autowired
     public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient, 
@@ -44,8 +45,10 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         this.meterRegistry = meterRegistry;
     }
     
+    
     @GetMapping("/")
     public ResponseEntity<Object> helloWorld() {
+        logger.info("Hello world " + counter++);
         return new ResponseEntity<>("Hello World", HttpStatus.OK);
     }
 
