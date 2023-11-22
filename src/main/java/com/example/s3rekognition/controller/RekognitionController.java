@@ -3,7 +3,9 @@ package com.example.s3rekognition.controller;
 import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.model.*;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.example.s3rekognition.PPEClassificationResponse;
 import com.example.s3rekognition.PPEResponse;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,21 +40,20 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private static int counter = 0;
 
     @Autowired
-    public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient, 
-                                 TextRekognition textRekognition, MeterRegistry meterRegistry) {
+    public RekognitionController(AmazonS3 s3Client, AmazonRekognition rekognitionClient, TextRekognition textRekognition, MeterRegistry meterRegistry) {
         this.s3Client = s3Client;
         this.rekognitionClient = rekognitionClient;
         this.textRekognition = textRekognition;
         this.meterRegistry = meterRegistry;
     }
-    
-    
+
+
     @GetMapping("/")
     public ResponseEntity<Object> helloWorld() {
         logger.info("Hello world " + counter++);
         totalPPEScan++;
         totalTextScan++;
-        return new ResponseEntity<>("Hello World", HttpStatus.OK);
+        return new ResponseEntity<>(("Hello World " + counter), HttpStatus.OK);
     }
 
     /**
@@ -80,14 +82,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             logger.info("scanning " + image.getKey());
 
             // This is where the magic happens, use AWS rekognition to detect PPE
-            DetectProtectiveEquipmentRequest request = new DetectProtectiveEquipmentRequest()
-                    .withImage(new Image()
-                            .withS3Object(new S3Object()
-                                    .withBucket(bucketName)
-                                    .withName(image.getKey())))
-                    .withSummarizationAttributes(new ProtectiveEquipmentSummarizationAttributes()
-                            .withMinConfidence(MIN_CONFIDENCE)
-                            .withRequiredEquipmentTypes("FACE_COVER"));
+            DetectProtectiveEquipmentRequest request = new DetectProtectiveEquipmentRequest().withImage(new Image().withS3Object(new S3Object().withBucket(bucketName).withName(image.getKey()))).withSummarizationAttributes(new ProtectiveEquipmentSummarizationAttributes().withMinConfidence(MIN_CONFIDENCE).withRequiredEquipmentTypes("FACE_COVER"));
 
             DetectProtectiveEquipmentResult result = rekognitionClient.detectProtectiveEquipment(request);
 
@@ -115,30 +110,30 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      * @return string
      */
     private static boolean isViolation(DetectProtectiveEquipmentResult result) {
-        return result.getPersons().stream()
-                .flatMap(p -> p.getBodyParts().stream())
-                .anyMatch(bodyPart -> bodyPart.getName().equals("FACE")
-                        && bodyPart.getEquipmentDetections().isEmpty());
+        return result.getPersons().stream().flatMap(p -> p.getBodyParts().stream()).anyMatch(bodyPart -> bodyPart.getName().equals("FACE") && bodyPart.getEquipmentDetections().isEmpty());
     }
 
     /**
      * Takes in pictures from POST and detects what Text is in them
+     * cmd command: 
+     * curl -F "files=@.\src\main\resources\images\img1.jpg" http://localhost:8080/scan-text
      *
      * @param files sent inn as HTTP POST multipart/form-data
      * @return String of response from AWS Rekognition
      */
-    @PostMapping("/scan-text")
-    public ResponseEntity<Object> scanTextOnImage(@RequestParam("file") MultipartFile[] files) {
-        if (files.length == 0) return new ResponseEntity<>("No file received", HttpStatus.BAD_REQUEST);
-        logger.info(String.format("Scanning %d files", files.length));
-        
+    @PostMapping(value = "/scan-text", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseBody
+    public ResponseEntity<Object> scanTextOnImage(@RequestParam("files") MultipartFile files) {
+        if (files.isEmpty()) return new ResponseEntity<>("No file received", HttpStatus.BAD_REQUEST);
+//        logger.info(String.format("Scanning %d files", files.length));
+
         StringBuilder response = new StringBuilder();
         try {
-            for (MultipartFile multipartFile : files) {
-                logger.info("Scanning file " + multipartFile.getName());
-                response.append(textRekognition.detectTextLabels(multipartFile.getInputStream()));
-                totalTextScan++;
-            }
+//            for (MultipartFile multipartFile : files) {
+            logger.info("Scanning file " + files.getName());
+            response.append(textRekognition.detectTextLabels(files.getInputStream()));
+            totalTextScan++;
+//            }
         } catch (Exception e) {
             return new ResponseEntity<>("Error from AWS Rekognition", HttpStatus.BAD_REQUEST);
         }
@@ -147,19 +142,29 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     /**
      * Takes images from resources/images and send them to AWS rekognition
+     *
      * @param id needs to be between 1-4
      * @return String of response from AWS Rekognition
      */
     @GetMapping("/scan-text-backup/{id}")
     public ResponseEntity<Object> scanTextOnImageBackup(@PathVariable int id) {
         if (id < 1 || id > 4) return new ResponseEntity<>("ID outside range", HttpStatus.BAD_REQUEST);
+
+        String picture = null;
+        switch (id) {
+            case 1 -> picture = "text/img1.jpg";
+            case 2 -> picture = "text/img2.jpg";
+            case 3 -> picture = "text/img3.jpg";
+            case 4 -> picture = "text/img4.jpg";
+        }
         
-        String response; 
+        String response;
         try {
-            response = textRekognition.detectTextLabels(ClassLoader.getSystemResourceAsStream("images/img" + id + ".jpg"));
+            S3ObjectInputStream s3ObjectInputStream = s3Client.getObject(new GetObjectRequest("candidate2014", picture)).getObjectContent();
+            response = textRekognition.detectTextLabels(s3ObjectInputStream);
             totalPPEScan++;
         } catch (Exception e) {
-            return new ResponseEntity<>("Error from AWS Rekognition", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error from AWS Rekognition", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
