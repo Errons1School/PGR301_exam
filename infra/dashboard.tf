@@ -3,10 +3,10 @@ resource "aws_cloudwatch_dashboard" "main" {
   dashboard_body = jsonencode({
     "widgets" : [
       {
-        "type"   : "metric"
-        "x"      : 0
-        "y"      : 0
-        "width"  : 6
+        "type" : "metric"
+        "x" : 0
+        "y" : 0
+        "width" : 6
         "height" : 6
 
         "properties" : {
@@ -30,17 +30,17 @@ resource "aws_cloudwatch_dashboard" "main" {
         }
       },
       {
-        "type"   : "metric"
-        "x"      : 6
-        "y"      : 0
-        "width"  : 6
+        "type" : "metric"
+        "x" : 6
+        "y" : 0
+        "width" : 6
         "height" : 6
         
         "properties" : {
-          
-        "metrics" : [
-          ["candidate2014-dashboard", "PPE_scan_count.value"]
-        ],
+
+          "metrics" : [
+            ["candidate2014-dashboard", "PPE_scan_count.value"]
+          ],
           "view" : "gauge",
           "region" : var.region,
           "stat" : "Sum",

@@ -3,8 +3,8 @@ resource "aws_apprunner_service" "service" {
 
   instance_configuration {
     instance_role_arn = aws_iam_role.role_for_apprunner_service.arn
-    cpu = var.apprunner_cpu
-    memory = var.apprunner_memory
+    cpu               = var.apprunner_cpu
+    memory            = var.apprunner_memory
   }
 
   source_configuration {
@@ -47,14 +47,14 @@ data "aws_iam_policy_document" "policy" {
     actions   = ["rekognition:*"]
     resources = ["*"]
   }
-  
-  statement  {
+
+  statement {
     effect    = "Allow"
     actions   = ["s3:*"]
     resources = ["*"]
   }
 
-  statement  {
+  statement {
     effect    = "Allow"
     actions   = ["cloudwatch:*"]
     resources = ["*"]

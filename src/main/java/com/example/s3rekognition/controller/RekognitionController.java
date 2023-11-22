@@ -31,8 +31,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final TextRekognition textRekognition;
     private final MeterRegistry meterRegistry;
 
-    private static int totalPPEScan = 0;
-    private static int totalTextScan = 0;
+    private static int totalPPEScan = 15;
+    private static int totalTextScan = 17;
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
 
     @Autowired
@@ -124,7 +124,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      */
     @PostMapping("/scan-text")
     public ResponseEntity<Object> scanTextOnImage(@RequestParam("file") MultipartFile[] files) {
-        if (files.length == 0) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (files.length == 0) return new ResponseEntity<>("No file received", HttpStatus.BAD_REQUEST);
         logger.info(String.format("Scanning %d files", files.length));
         
         StringBuilder response = new StringBuilder();
@@ -135,7 +135,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
                 totalTextScan++;
             }
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error from AWS Rekognition", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(response.toString(), HttpStatus.OK);
     }
@@ -147,14 +147,14 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      */
     @GetMapping("/scan-text-backup/{id}")
     public ResponseEntity<Object> scanTextOnImageBackup(@PathVariable int id) {
-        if (id < 1 || id > 4) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (id < 1 || id > 4) return new ResponseEntity<>("ID outside range", HttpStatus.BAD_REQUEST);
         
         String response; 
         try {
             response = textRekognition.detectTextLabels(ClassLoader.getSystemResourceAsStream("images/img" + id + ".jpg"));
             totalPPEScan++;
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error from AWS Rekognition", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
