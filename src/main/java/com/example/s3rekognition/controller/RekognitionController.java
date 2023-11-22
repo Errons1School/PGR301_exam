@@ -49,6 +49,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     @GetMapping("/")
     public ResponseEntity<Object> helloWorld() {
         logger.info("Hello world " + counter++);
+        totalPPEScan++;
+        totalTextScan++;
         return new ResponseEntity<>("Hello World", HttpStatus.OK);
     }
 
