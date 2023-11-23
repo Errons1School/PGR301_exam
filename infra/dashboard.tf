@@ -57,28 +57,20 @@ resource "aws_cloudwatch_dashboard" "main" {
       {
         "type" : "metric"
         "x" : 0
-        "y" : 6
+        "y" : 12
         "width" : 6
         "height" : 6
 
         "properties" : {
-          "metrics" : [
-            ["candidate2014-dashboard", "Text_scan_count.value"]
+          "metrics": [
+            [ "candidate2014-dashboard", "hello_world.count"]
           ],
-          "view" : "gauge",
-          "region" : var.region,
-          "stat" : "Maximum",
-          "period" : 60,
-          "yAxis" : {
-            "left" : {
-              "min" : 0,
-              "max" : 10000
-            }
-          },
-          "legend" : {
-            "position" : "bottom"
-          },
-          "title" : "Hello World"
+          "view": "timeSeries",
+          "stacked": false,
+          "region": var.region,
+          "stat": "Sum",
+          "period": 60,
+          "liveData": true
         }
       }
     ]
