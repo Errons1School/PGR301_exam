@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.rekognition.model.DetectTextResponse;
 import software.amazon.awssdk.services.rekognition.model.TextDetection;
 import software.amazon.awssdk.services.rekognition.model.RekognitionException;
 
-import java.io.InputStream;
 import java.util.List;
 
 @Component
@@ -27,12 +26,12 @@ public class TextRekognition {
      * @param inputStream from a file
      * @return String result from AWS text detection
      * */
-    public String detectTextLabels(InputStream inputStream) throws RekognitionException {
+    public String detectTextLabels(byte[] inputStream) throws RekognitionException {
         RekognitionClient rekognitionClient = RekognitionClient.builder()
                 .region(Region.of(region))
                 .credentialsProvider(ProfileCredentialsProvider.create("default")).build();
 
-        SdkBytes sourceBytes = SdkBytes.fromInputStream(inputStream);
+        SdkBytes sourceBytes = SdkBytes.fromByteArray(inputStream);
         Image image = Image.builder().bytes(sourceBytes).build();
 
         DetectTextRequest textRequest = DetectTextRequest.builder().image(image).build();
