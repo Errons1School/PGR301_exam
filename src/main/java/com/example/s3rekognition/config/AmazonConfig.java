@@ -13,7 +13,7 @@ public class AmazonConfig {
     
     @Bean
     public ProfileCredentialsProvider profileCredentialsProvider() {
-        return ProfileCredentialsProvider.create();
+        return ProfileCredentialsProvider.builder().build();
     }
 
     @Bean
