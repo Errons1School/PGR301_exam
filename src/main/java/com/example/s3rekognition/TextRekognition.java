@@ -2,7 +2,6 @@ package com.example.s3rekognition;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
@@ -28,8 +27,7 @@ public class TextRekognition {
      * */
     public String detectTextLabels(byte[] inputStream) throws RekognitionException {
         RekognitionClient rekognitionClient = RekognitionClient.builder()
-                .region(Region.of(region))
-                .credentialsProvider(ProfileCredentialsProvider.create("default")).build();
+                .region(Region.of(region)).build();
 
         SdkBytes sourceBytes = SdkBytes.fromByteArray(inputStream);
         Image image = Image.builder().bytes(sourceBytes).build();

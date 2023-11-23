@@ -42,21 +42,21 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 data "aws_iam_policy_document" "policy" {
-#  statement {
-#    effect    = "Allow"
-#    actions   = ["rekognition:*"]
-#    resources = ["*"]
-#  }
-#
-#  statement {
-#    effect    = "Allow"
-#    actions   = ["s3:*"]
-#    resources = ["*"]
-#  }
+  statement {
+    effect    = "Allow"
+    actions   = ["rekognition:*"]
+    resources = ["*"]
+  }
 
   statement {
     effect    = "Allow"
-    actions   = ["*:*"]
+    actions   = ["s3:*"]
+    resources = ["*"]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["cloudwatch:*"]
     resources = ["*"]
   }
 }
