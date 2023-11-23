@@ -1,9 +1,8 @@
 package com.example.s3rekognition;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.DetectTextRequest;
 import software.amazon.awssdk.services.rekognition.model.Image;
@@ -15,9 +14,13 @@ import java.util.List;
 
 @Component
 public class TextRekognition {
+    
+    private final RekognitionClient rekognitionClient;
 
-    @Value("${aws-region:eu-west-1}")
-    String region;
+    @Autowired
+    public TextRekognition(RekognitionClient rekognitionClient) {
+        this.rekognitionClient = rekognitionClient;
+    }
 
     /**
      * Takes in an input stream from a file and sends that file to AWS for text detection
@@ -26,9 +29,6 @@ public class TextRekognition {
      * @return String result from AWS text detection
      * */
     public String detectTextLabels(byte[] inputStream) throws RekognitionException {
-        RekognitionClient rekognitionClient = RekognitionClient.builder()
-                .region(Region.of(region)).build();
-
         SdkBytes sourceBytes = SdkBytes.fromByteArray(inputStream);
         Image image = Image.builder().bytes(sourceBytes).build();
 
@@ -48,7 +48,6 @@ public class TextRekognition {
             builder.append("\n");
         }
         
-        rekognitionClient.close();
         return builder.toString();
     }
 }

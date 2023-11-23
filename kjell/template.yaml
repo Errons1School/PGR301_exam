@@ -12,8 +12,8 @@ Globals:
     MemorySize: 512
     Environment:
       Variables:
-#        BUCKET_NAME: kjellsimagebucket
         BUCKET_NAME: candidate2014
+        REGION: eu-west-1
 
 Resources:
   Bucket:
@@ -35,7 +35,7 @@ Resources:
         RekognitionProtectiveWear:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /rekognitionprotectivewear
+            Path: /
             Method: get
 
 Outputs:

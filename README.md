@@ -37,7 +37,7 @@ Når sensoren evaluerer oppgaven, vil han/hun:
 - Oppgave 1. Kjells Pythonkode - 20 Poeng
 - Oppgave 2. Overgang til Java og Spring Boot - 15 Poeng
 - Oppgave 3. Terraform, AWS Apprunner og IAC - 15 Poeng
-- Oppgave 4. Feedback -30 Poeng
+- Oppgave 4. Feedback - 30 Poeng
 - Oppgave 5. Drøfteoppgaver - 20 poeng
 
 # Oppgavebeskrivelse
@@ -271,7 +271,7 @@ Alarmen skal lages ved hjelp av Terraformkode. Koden skal lages som en separat T
 hardkoding  av verdier i modulen for maksimal gjenbrukbarhet. Pass samtidig på at brukere av modulen ikke må sette mange
 variabler når de inkluderer den i koden sin.
 
-# Oppgave 4. Drøfteoppgaver
+# Oppgave 5. Drøfteoppgaver
 
 ## Det Første Prinsippet - Flyt
 

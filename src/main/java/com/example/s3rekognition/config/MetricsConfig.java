@@ -16,22 +16,18 @@ import java.util.Map;
 @Configuration
 public class MetricsConfig {
 
-    @Value("${aws-region:eu-west-1}") 
-    String awsRegion;
-
     @Value("${aws-dashboard:candidate2014-dashboard}") 
     String awsDashboard;
     
-    
     @Bean
-    public CloudWatchAsyncClient cloudWatchAsyncClient() {
-        return CloudWatchAsyncClient.builder().region(Region.of(awsRegion)).build();
+    public CloudWatchAsyncClient cloudWatchAsyncClient(Region awsRegion) {
+        return CloudWatchAsyncClient.builder().region(awsRegion).build();
     }
 
     @Bean
-    public MeterRegistry getMeterRegistry() {
+    public MeterRegistry getMeterRegistry(Region awsRegion) {
         CloudWatchConfig cloudWatchConfig = setupCloudWatchConfig();
-        return new CloudWatchMeterRegistry(cloudWatchConfig, Clock.SYSTEM, cloudWatchAsyncClient());
+        return new CloudWatchMeterRegistry(cloudWatchConfig, Clock.SYSTEM, cloudWatchAsyncClient(awsRegion));
     }
 
     private CloudWatchConfig setupCloudWatchConfig() {

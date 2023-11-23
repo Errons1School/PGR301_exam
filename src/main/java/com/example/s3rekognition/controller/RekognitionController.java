@@ -5,6 +5,7 @@ import com.example.s3rekognition.PPEResponse;
 import com.example.s3rekognition.TextRekognition;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.intellij.lang.annotations.Language;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 
-@SuppressWarnings("JavadocLinkAsPlainText")
+@SuppressWarnings({"JavadocLinkAsPlainText", "ResultOfMethodCallIgnored", "CallToPrintStackTrace"})
 @RestController
 public class RekognitionController implements ApplicationListener<ApplicationReadyEvent> {
     private final S3Client s3Client;
@@ -36,9 +37,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final MeterRegistry meterRegistry;
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
-    private static int totalPPEScan = 12;
-    private static int totalTextScan = 21;
-    private static int counter = 0;
+    private static int totalPPEScan = 0;
+    private static int totalTextScan = 0;
 
     @Autowired
     public RekognitionController(S3Client s3Client, RekognitionClient rekognitionClient, TextRekognition textRekognition, MeterRegistry meterRegistry) {
@@ -50,11 +50,40 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     @GetMapping("/")
     public ResponseEntity<Object> helloWorld() {
-        logger.info("Hello world " + counter++);
-        meterRegistry.counter("hello_world").increment();
-        totalPPEScan++;
-        totalTextScan++;
-        return new ResponseEntity<>(("Hello World " + counter), HttpStatus.OK);
+        logger.info("Served Instructions");
+        
+        @Language("html")
+        String instructions = """
+                <h1>Welcome to Candidate 2014 Java app!</h1>
+                This app has two main functions
+                    1. Checking if people on images are using appropriate PPE equipments.
+                    2. Checking images of what text is written on them.
+                
+                To use the first one do the following:
+                - Command for docker run app:
+                    curl http://localhost:8080/scan-ppe?bucketName=candidate2014
+                - Command for AWS apprunner app:
+                    curl <AWS_apprunner_URL>/scan-ppe?bucketName=<S3BUCKET>
+                
+                To use the second one do the following:
+                - Have a jpg or png file locally.
+                - There are some images laying in resources
+                - Command for docker run app:
+                    curl -F "files=@.\\src\\main\\resources\\images\\img1.jpg" http://localhost:8080/scan-text
+                    OR
+                    curl -F "files=@<uri_to_image>" http://localhost:8080/scan-text
+                - Command for AWS apprunner app:
+                    curl -F "files=@<uri_to_image>" <AWS_apprunner_URL>/scan-text
+                    
+                NOTE: if that does not work, dont worry!
+                I got a backup solution:
+                - Use number between 1-3.
+                - Command for docker run app:
+                    curl http://localhost:8080/scan-text-backup/1
+                - Command for AWS apprunner app:
+                    curl <AWS_apprunner_URL>/scan-text-backup/1
+                """;
+        return new ResponseEntity<>(instructions, HttpStatus.OK);
     }
 
     /**
@@ -79,7 +108,14 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             logger.info("scanning " + image.key());
 
             // Create request for Rekognition
-            DetectProtectiveEquipmentRequest request = DetectProtectiveEquipmentRequest.builder().image(Image.builder().s3Object(software.amazon.awssdk.services.rekognition.model.S3Object.builder().bucket(bucketName).name(image.key()).build()).build()).summarizationAttributes(ProtectiveEquipmentSummarizationAttributes.builder().minConfidence(MIN_CONFIDENCE).requiredEquipmentTypesWithStrings("FACE_COVER").build()).build();
+            DetectProtectiveEquipmentRequest request = DetectProtectiveEquipmentRequest.builder().image(
+                    Image.builder().s3Object(
+                            software.amazon.awssdk.services.rekognition.model.S3Object.builder()
+                                    .bucket(bucketName).name(image.key())
+                                    .build()).build()
+            ).summarizationAttributes(ProtectiveEquipmentSummarizationAttributes
+                    .builder().minConfidence(MIN_CONFIDENCE).requiredEquipmentTypesWithStrings("FACE_COVER")
+                    .build()).build();
 
             // Call Rekognition to detect PPE
             DetectProtectiveEquipmentResponse result = rekognitionClient.detectProtectiveEquipment(request);
@@ -147,16 +183,16 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      * Takes images from backup S3 and send them to AWS rekognition
      * curl http://localhost:8080/scan-text-backup/1
      * 
-     * @param id needs to be between 1-4
+     * @param id needs to be between 1-3
      * @return String of response from AWS Rekognition
      */
     @GetMapping("/scan-text-backup/{id}")
     public ResponseEntity<Object> scanTextOnImageBackup(@PathVariable int id) {
-        if (id < 1 || id > 4) {
-            logger.warning("Error 400: ID outside of range 1 - 4");
-            return new ResponseEntity<>("Error 400: ID outside of range 1 - 4", HttpStatus.BAD_REQUEST);
+        if (id < 1 || id > 3) {
+            logger.warning("Error 400: ID outside of range 1 - 3");
+            return new ResponseEntity<>("Error 400: ID outside of range 1 - 3", HttpStatus.BAD_REQUEST);
         }
-
+        
         String bucketName = "candidate2014-text";
         String key = null;
         switch (id) {

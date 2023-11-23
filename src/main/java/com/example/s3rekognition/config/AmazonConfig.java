@@ -9,14 +9,21 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
 public class AmazonConfig {
-
-    @Bean
-    public S3Client amazonS3(@Value("${aws-region:eu-west-1}") String awsRegion) {
-        return S3Client.builder().region(Region.of(awsRegion)).build();
+    
+    @Bean 
+    public Region region(@Value("${aws-region:eu-west-1}") String awsRegion) {
+        Region region = Region.of(awsRegion);
+        if (Region.regions().contains(region)) return region; 
+        return Region.EU_WEST_1;
     }
 
     @Bean
-    public RekognitionClient amazonRekognition(@Value("${aws-region:eu-west-1}") String awsRegion) {
-        return RekognitionClient.builder().region(Region.of(awsRegion)).build();
+    public S3Client amazonS3(Region awsRegion) {
+        return S3Client.builder().region(awsRegion).build();
+    }
+
+    @Bean
+    public RekognitionClient amazonRekognition(Region awsRegion) {
+        return RekognitionClient.builder().region(awsRegion).build();
     }
 }
