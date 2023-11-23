@@ -34,9 +34,9 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final TextRekognition textRekognition;
     private final MeterRegistry meterRegistry;
 
+    private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
     private static int totalPPEScan = 15;
     private static int totalTextScan = 17;
-    private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
     private static int counter = 0;
 
     @Autowired
@@ -51,6 +51,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     @GetMapping("/")
     public ResponseEntity<Object> helloWorld() {
         logger.info("Hello world " + counter++);
+        meterRegistry.counter("hello_world");
         totalPPEScan++;
         totalTextScan++;
         return new ResponseEntity<>(("Hello World " + counter), HttpStatus.OK);

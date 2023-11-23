@@ -53,6 +53,33 @@ resource "aws_cloudwatch_dashboard" "main" {
             }
           }
         }
+      },
+      {
+        "type" : "metric"
+        "x" : 0
+        "y" : 6
+        "width" : 6
+        "height" : 6
+
+        "properties" : {
+          "metrics" : [
+            ["candidate2014-dashboard", "Text_scan_count.value"]
+          ],
+          "view" : "gauge",
+          "region" : var.region,
+          "stat" : "Maximum",
+          "period" : 60,
+          "yAxis" : {
+            "left" : {
+              "min" : 0,
+              "max" : 10000
+            }
+          },
+          "legend" : {
+            "position" : "bottom"
+          },
+          "title" : "Hello World"
+        }
       }
     ]
   })
