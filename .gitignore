@@ -1,6 +1,7 @@
 # intellij 
 *.idea/
 *.iml
+/HTTP.http
 
 # Compile targets
 *.aws-sam/

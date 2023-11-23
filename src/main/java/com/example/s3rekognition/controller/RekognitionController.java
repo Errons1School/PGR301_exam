@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 
+@SuppressWarnings("JavadocLinkAsPlainText")
 @RestController
 public class RekognitionController implements ApplicationListener<ApplicationReadyEvent> {
     private final S3Client s3Client;
@@ -35,8 +36,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final MeterRegistry meterRegistry;
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
-    private static int totalPPEScan = 0;
-    private static int totalTextScan = 0;
+    private static int totalPPEScan = 12;
+    private static int totalTextScan = 21;
     private static int counter = 0;
 
     @Autowired
@@ -59,7 +60,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     /**
      * This endpoint takes an S3 bucket name in as an argument, scans all the
      * Files in the bucket for Protective Gear Violations.
-     * <p>
+     * curl http://localhost:8080/scan-ppe?bucketName=candidate2014
      *
      * @param bucketName bucket name
      * @return json
@@ -115,7 +116,6 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     /**
      * Takes in pictures from POST and detects what Text is in them
-     * cmd command:
      * curl -F "files=@.\src\main\resources\images\img1.jpg" http://localhost:8080/scan-text
      *
      * @param files sent inn as HTTP POST multipart/form-data
@@ -125,7 +125,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     @ResponseBody
     public ResponseEntity<Object> scanTextOnImage(@RequestParam("files") MultipartFile files) {
         if (files.isEmpty()) {
-            logger.info("Error 400: No file received");
+            logger.warning("Error 400: No file received");
             return new ResponseEntity<>("Error 400: No file received", HttpStatus.BAD_REQUEST);
         }
 
@@ -135,7 +135,9 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             response.append(textRekognition.detectTextLabels(files.getInputStream().readAllBytes()));
             
         } catch (Exception e) {
-            logger.info("Error 500: AWS Rekognition");
+            logger.severe("Error 500: AWS Rekognition");
+            e.getMessage();
+            e.printStackTrace();
             return new ResponseEntity<>("Error 500: AWS Rekognition", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response.toString(), HttpStatus.OK);
@@ -143,14 +145,15 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     /**
      * Takes images from backup S3 and send them to AWS rekognition
-     *
+     * curl http://localhost:8080/scan-text-backup/1
+     * 
      * @param id needs to be between 1-4
      * @return String of response from AWS Rekognition
      */
     @GetMapping("/scan-text-backup/{id}")
     public ResponseEntity<Object> scanTextOnImageBackup(@PathVariable int id) {
         if (id < 1 || id > 4) {
-            logger.info("Error 400: ID outside of range 1 - 4");
+            logger.warning("Error 400: ID outside of range 1 - 4");
             return new ResponseEntity<>("Error 400: ID outside of range 1 - 4", HttpStatus.BAD_REQUEST);
         }
 
@@ -172,7 +175,9 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 //            Do AWS Rekognition text scan
             response = textRekognition.detectTextLabels(s3object.readAllBytes());
         } catch (Exception e) {
-            logger.info("Error 500: AWS Rekognition");
+            logger.severe("Error 500: AWS Rekognition");
+            e.getMessage();
+            e.printStackTrace();
             return new ResponseEntity<>("Error 500: AWS Rekognition", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
