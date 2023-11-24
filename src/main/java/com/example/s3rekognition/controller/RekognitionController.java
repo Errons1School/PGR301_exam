@@ -55,33 +55,33 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         @Language("html")
         String instructions = """
                 <h1>Welcome to Candidate 2014 Java app!</h1>
-                This app has two main functions
-                    1. Checking if people on images are using appropriate PPE equipments.
-                    2. Checking images of what text is written on them.
+                <h3>app has two main functions</h3><br>
+                <div>1. Checking if people on images are using appropriate PPE equipments.</div><br>
+                <div>2. Checking images of what text is written on them.</div><br><br>
                 
-                To use the first one do the following:
-                - Command for docker run app:
-                    curl http://localhost:8080/scan-ppe?bucketName=candidate2014
-                - Command for AWS apprunner app:
-                    curl <AWS_apprunner_URL>/scan-ppe?bucketName=<S3BUCKET>
+                <h3>To use the first one do the following:</h3><br>
+                <div>- Command for docker run app:</div><br>
+                <div>    curl http://localhost:8080/scan-ppe?bucketName=candidate2014</div><br>
+                <div>- Command for AWS apprunner app:</div><br>
+                <div>    curl &#60;AWS_apprunner_URL&#62;/scan-ppe?bucketName=<S3BUCKET></div><br><br>
                 
-                To use the second one do the following:
-                - Have a jpg or png file locally.
-                - There are some images laying in resources
-                - Command for docker run app:
-                    curl -F "files=@.\\src\\main\\resources\\images\\img1.jpg" http://localhost:8080/scan-text
-                    OR
-                    curl -F "files=@<uri_to_image>" http://localhost:8080/scan-text
-                - Command for AWS apprunner app:
-                    curl -F "files=@<uri_to_image>" <AWS_apprunner_URL>/scan-text
+                <h3>To use the second one do the following:</h3>
+                <div>- Have a jpg or png file locally.</div><br>
+                <div>- There are some images laying in resources</div><br>
+                <div>- Command for docker run app:</div><br>
+                <div>    curl -F "files=@.\\src\\main\\resources\\images\\img1.jpg" http://localhost:8080/scan-text</div><br>
+                <div>    OR</div><br>
+                <div>    curl -F "files=@&#60;uri_to_image&#62;" http://localhost:8080/scan-text</div><br>
+                <div>- Command for AWS apprunner app:</div><br>
+                <div>    curl -F "files=@&#60;uri_to_image>" &#60;AWS_apprunner_URL&#62;/scan-text</div><br><br>
                     
-                NOTE: if that does not work, dont worry!
-                I got a backup solution:
-                - Use number between 1-3.
-                - Command for docker run app:
-                    curl http://localhost:8080/scan-text-backup/1
-                - Command for AWS apprunner app:
-                    curl <AWS_apprunner_URL>/scan-text-backup/1
+                <div>NOTE: if that does not work, don't worry!</div><br>
+                <div>I got a backup solution:</div><br>
+                <div>- Use number between 1-3.</div><br>
+                <div>- Command for docker run app:</div><br>
+                <div>    curl http://localhost:8080/scan-text-backup/1</div><br>
+                <div>- Command for AWS apprunner app:</div><br>
+                <div>    curl &#60;AWS_apprunner_URL&#62;/scan-text-backup/1</div><br>
                 """;
         return new ResponseEntity<>(instructions, HttpStatus.OK);
     }
