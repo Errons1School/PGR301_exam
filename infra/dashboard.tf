@@ -40,7 +40,8 @@ resource "aws_cloudwatch_dashboard" "main" {
         "properties" : {
           "metrics" : [
             ["candidate2014-dashboard", "total_scan_ppe_violation.count"],
-            [".", "total_scan_ppe.count"]
+            [".", "total_scan_ppe.count"],
+            [".", "crash_scan_ppe.count"]
           ],
           "view" : "timeSeries",
           "stacked" : false,
@@ -53,7 +54,7 @@ resource "aws_cloudwatch_dashboard" "main" {
       },
       {
         "type" : "metric"
-        "x" : 12
+        "x" : 0
         "y" : 6
         "width" : 12
         "height" : 6
@@ -88,7 +89,8 @@ resource "aws_cloudwatch_dashboard" "main" {
 
         "properties" : {
           "metrics" : [
-            ["candidate2014-dashboard", "total_scan_text.count"]
+            ["candidate2014-dashboard", "total_scan_text.count"],
+            [".", "crash_scan_text.count"]
           ],
           "view" : "timeSeries",
           "stacked" : false,
@@ -101,7 +103,7 @@ resource "aws_cloudwatch_dashboard" "main" {
       },
       {
         "type" : "metric"
-        "x" : 12
+        "x" : 0
         "y" : 12
         "width" : 12
         "height" : 6
@@ -139,7 +141,8 @@ resource "aws_cloudwatch_dashboard" "main" {
 
         "properties" : {
           "metrics" : [
-            ["candidate2014-dashboard", "total_scan_text_backup.count"]
+            ["candidate2014-dashboard", "total_scan_text_backup.count"],
+            [".", "total_scan_text_backup.count"]
           ],
           "view" : "timeSeries",
           "stacked" : false,
