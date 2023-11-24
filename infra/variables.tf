@@ -7,6 +7,10 @@ variable "region" {
   default = "eu-west-1"
 }
 
+variable "email" {
+  type = string
+}
+
 variable "apprunner_image" {
   type    = string
 }
