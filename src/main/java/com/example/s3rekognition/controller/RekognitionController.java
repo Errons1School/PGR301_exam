@@ -3,6 +3,7 @@ package com.example.s3rekognition.controller;
 import com.example.s3rekognition.PPEClassificationResponse;
 import com.example.s3rekognition.PPEResponse;
 import com.example.s3rekognition.TextRekognition;
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.intellij.lang.annotations.Language;
@@ -37,8 +38,6 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final MeterRegistry meterRegistry;
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
-    private static int totalPPEScan = 0;
-    private static int totalTextScan = 0;
 
     @Autowired
     public RekognitionController(S3Client s3Client, RekognitionClient rekognitionClient, TextRekognition textRekognition, MeterRegistry meterRegistry) {
@@ -49,22 +48,23 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     }
 
     @GetMapping("/")
-    public ResponseEntity<Object> helloWorld() {
+    @ResponseBody
+    public ResponseEntity<Object> instructions() {
         logger.info("Served Instructions");
-        
+
         @Language("html")
         String instructions = """
                 <h1>Welcome to Candidate 2014 Java app!</h1>
                 <h3>app has two main functions</h3><br>
                 <div>1. Checking if people on images are using appropriate PPE equipments.</div><br>
                 <div>2. Checking images of what text is written on them.</div><br><br>
-                
+                                
                 <h3>To use the first one do the following:</h3><br>
                 <div>- Command for docker run app:</div><br>
                 <div>    curl http://localhost:8080/scan-ppe?bucketName=candidate2014</div><br>
                 <div>- Command for AWS apprunner app:</div><br>
                 <div>    curl &#60;AWS_apprunner_URL&#62;/scan-ppe?bucketName=<S3BUCKET></div><br><br>
-                
+                                
                 <h3>To use the second one do the following:</h3>
                 <div>- Have a jpg or png file locally.</div><br>
                 <div>- There are some images laying in resources</div><br>
@@ -95,42 +95,50 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      * @return json
      */
     @GetMapping(value = "/scan-ppe", consumes = "*/*", produces = "application/json")
-    @ResponseBody
-    public ResponseEntity<PPEResponse> scanForPPE(@RequestParam String bucketName) {
-        // List all objects in the S3 bucket
-        ListObjectsV2Response response = s3Client.listObjectsV2(builder -> builder.bucket(bucketName));
-        List<S3Object> images = response.contents();
+    @Timed("time_avg_scan_ppe")
+    public ResponseEntity<Object> scanForPPE(@RequestParam String bucketName) {
+        try {
+            // List all objects in the S3 bucket
+            ListObjectsV2Response response = s3Client.listObjectsV2(builder -> builder.bucket(bucketName));
+            List<S3Object> images = response.contents();
+            List<PPEClassificationResponse> classificationResponses = new ArrayList<>();
+            final float MIN_CONFIDENCE = 80f;
 
-        List<PPEClassificationResponse> classificationResponses = new ArrayList<>();
-        final float MIN_CONFIDENCE = 80f;
+            for (S3Object image : images) {
+                logger.info("scanning " + image.key());
 
-        for (S3Object image : images) {
-            logger.info("scanning " + image.key());
+                // Create request for Rekognition
+                DetectProtectiveEquipmentRequest request = DetectProtectiveEquipmentRequest.builder().image(
+                        Image.builder().s3Object(
+                                software.amazon.awssdk.services.rekognition.model.S3Object.builder()
+                                        .bucket(bucketName).name(image.key())
+                                        .build()).build()
+                ).summarizationAttributes(ProtectiveEquipmentSummarizationAttributes
+                        .builder().minConfidence(MIN_CONFIDENCE).requiredEquipmentTypesWithStrings("FACE_COVER")
+                        .build()).build();
 
-            // Create request for Rekognition
-            DetectProtectiveEquipmentRequest request = DetectProtectiveEquipmentRequest.builder().image(
-                    Image.builder().s3Object(
-                            software.amazon.awssdk.services.rekognition.model.S3Object.builder()
-                                    .bucket(bucketName).name(image.key())
-                                    .build()).build()
-            ).summarizationAttributes(ProtectiveEquipmentSummarizationAttributes
-                    .builder().minConfidence(MIN_CONFIDENCE).requiredEquipmentTypesWithStrings("FACE_COVER")
-                    .build()).build();
+                // Call Rekognition to detect PPE
+                DetectProtectiveEquipmentResponse result = rekognitionClient.detectProtectiveEquipment(request);
 
-            // Call Rekognition to detect PPE
-            DetectProtectiveEquipmentResponse result = rekognitionClient.detectProtectiveEquipment(request);
+                boolean violation = isViolation(result);
+                if (violation) meterRegistry.counter("total_scan_ppe_violation").increment();
+                logger.info("scanning " + image.key() + ", violation result " + violation);
 
-            boolean violation = isViolation(result); // Assuming isViolation() is implemented elsewhere
-            logger.info("scanning " + image.key() + ", violation result " + violation);
-
-            int personCount = result.persons().size();
-            PPEClassificationResponse classification = new PPEClassificationResponse(image.key(), personCount, violation);
-            classificationResponses.add(classification);
-            // totalPPEScan++; // Assuming totalPPEScan is a counter variable defined elsewhere
+                int personCount = result.persons().size();
+                PPEClassificationResponse classification = new PPEClassificationResponse(image.key(), personCount, violation);
+                classificationResponses.add(classification);
+            }
+            meterRegistry.counter("total_scan_ppe").increment();
+            PPEResponse ppeResponse = new PPEResponse(bucketName, classificationResponses);
+            return ResponseEntity.ok(ppeResponse);
+            
+        } catch (Exception e) {
+            meterRegistry.counter("crash_scan_ppe").increment();
+            logger.severe("Error 500: AWS Rekognition");
+            e.getMessage();
+            e.printStackTrace();
+            return new ResponseEntity<>("Error 500: AWS Rekognition", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        PPEResponse ppeResponse = new PPEResponse(bucketName, classificationResponses);
-        return ResponseEntity.ok(ppeResponse);
     }
 
     /**
@@ -146,8 +154,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         return result.persons().stream()
                 .flatMap(p -> p.bodyParts().stream())
                 .anyMatch(bodyPart -> bodyPart.name()
-                        .equals(BodyPart.FACE) && bodyPart.equipmentDetections()
-                        .isEmpty());
+                                              .equals(BodyPart.FACE) && bodyPart.equipmentDetections()
+                                              .isEmpty());
     }
 
     /**
@@ -158,7 +166,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      * @return String of response from AWS Rekognition
      */
     @PostMapping(value = "/scan-text", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseBody
+    @Timed("time_avg_scan_text")
     public ResponseEntity<Object> scanTextOnImage(@RequestParam("files") MultipartFile files) {
         if (files.isEmpty()) {
             logger.warning("Error 400: No file received");
@@ -169,30 +177,33 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         try {
             logger.info("Scanning file " + files.getName() + " from POST");
             response.append(textRekognition.detectTextLabels(files.getInputStream().readAllBytes()));
-            
+
         } catch (Exception e) {
+            meterRegistry.counter("crash_scan_text").increment();
             logger.severe("Error 500: AWS Rekognition");
             e.getMessage();
             e.printStackTrace();
             return new ResponseEntity<>("Error 500: AWS Rekognition", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        meterRegistry.counter("total_scan_text").increment();
         return new ResponseEntity<>(response.toString(), HttpStatus.OK);
     }
 
     /**
      * Takes images from backup S3 and send them to AWS rekognition
      * curl http://localhost:8080/scan-text-backup/1
-     * 
+     *
      * @param id needs to be between 1-3
      * @return String of response from AWS Rekognition
      */
     @GetMapping("/scan-text-backup/{id}")
+    @Timed("time_avg_scan_text_backup")
     public ResponseEntity<Object> scanTextOnImageBackup(@PathVariable int id) {
         if (id < 1 || id > 3) {
             logger.warning("Error 400: ID outside of range 1 - 3");
             return new ResponseEntity<>("Error 400: ID outside of range 1 - 3", HttpStatus.BAD_REQUEST);
         }
-        
+
         String bucketName = "candidate2014-text";
         String key = null;
         switch (id) {
@@ -207,22 +218,22 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             logger.info("Scanning file " + key + " from S3 " + bucketName);
             GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(key).build();
             ResponseInputStream<GetObjectResponse> s3object = s3Client.getObject(getObjectRequest);
-            
+
 //            Do AWS Rekognition text scan
             response = textRekognition.detectTextLabels(s3object.readAllBytes());
         } catch (Exception e) {
+            meterRegistry.counter("crash_scan_text_backup").increment();
             logger.severe("Error 500: AWS Rekognition");
             e.getMessage();
             e.printStackTrace();
             return new ResponseEntity<>("Error 500: AWS Rekognition", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        meterRegistry.counter("total_scan_text_backup").increment();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        Gauge.builder("PPE_scan_count", totalPPEScan, Integer::intValue).register(meterRegistry);
-        Gauge.builder("Text_scan_count", totalTextScan, Integer::intValue).register(meterRegistry);
+        
     }
 }
