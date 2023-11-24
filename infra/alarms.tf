@@ -1,4 +1,4 @@
-module "alarm" {
+module "alarm-a" {
   source              = "github.com/Errons1/aws_alarm.git"
   prefix              = var.prefix
   alarm_namespace     = aws_cloudwatch_dashboard.main.dashboard_name
@@ -14,7 +14,7 @@ module "alarm" {
   endpoint            = var.email
 }
 
-module "alarm" {
+module "alarm-b"  {
   source              = "github.com/Errons1/aws_alarm.git"
   prefix              = var.prefix
   alarm_namespace     = aws_cloudwatch_dashboard.main.dashboard_name
@@ -30,7 +30,7 @@ module "alarm" {
   endpoint            = var.email
 }
 
-module "alarm" {
+module "alarm-c" {
   source              = "github.com/Errons1/aws_alarm.git"
   prefix              = var.prefix
   alarm_namespace     = aws_cloudwatch_dashboard.main.dashboard_name
