@@ -33,6 +33,35 @@ Utenfor prosjektet så må det gjøres to ting:
 Bildene ligger tilgjengelig i mappen `img/ppe/*`.
 
 ## Del 1B:
-Oppgaven er løst og kan løses ifølge instruksjonene fra oppgave teksten.
+Oppgaven er løst og kan utføre instruksjonene fra oppgave teksten.
+Kjør følgende fra ```/kjell/hello_world```
+```shell
+docker build -t kjellpy . 
+docker run -e AWS_ACCESS_KEY_ID=XXX -e AWS_SECRET_ACCESS_KEY=YYY -e BUCKET_NAME=kjellsimagebucket kjellpy
+```
 
-## Del 2
+## Del 2A:
+Oppgaven er løst og kan løses ifølge instruksjonene fra oppgave teksten.
+Kjør følgende fra root
+```shell
+docker build -t ppe . 
+docker run -p 8080:8080 -e AWS_ACCESS_KEY_ID=XXX -e AWS_SECRET_ACCESS_KEY=YYY -e BUCKET_NAME=kjellsimagebucket ppe
+```
+
+## Del 2B:
+For at sensor skal kunne få Action "AWS SAM" til å kjøre, gjør følgende:
+I filen `.github/workflows/aws-ecr.yaml` må følgende gjøres:
+- Det er en envirment varibler som må settes.
+  - **PREFIX**: Prefix navn som skal settes på alt av AWS resurser.
+
+Utenfor prosjektet så må dette gjøres:
+- I GitHub actions må disse secrets være laget (Husk at SAM noen av dem til felles!):
+  - **AWS_ACCESS_KEY_ID**
+  - **AWS_SECRET_ACCESS_KEY**
+  - **AWS_REGION**
+  - **AWS_ECR_URI**
+  - **AWS_ALARM_EMAIL**
+
+OBS OBS! Inni i prosjektet er det hardkodet en backup løsning for funksjonalitet 
+i programmet! Den peker til S3 "candidate2014-text".
+
