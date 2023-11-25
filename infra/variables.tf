@@ -7,10 +7,6 @@ variable "region" {
   default = "eu-west-1"
 }
 
-variable "email" {
-  type = string
-}
-
 variable "apprunner_image" {
   type    = string
 }
@@ -23,4 +19,8 @@ variable "apprunner_cpu" {
 variable "apprunner_memory" {
   type    = string
   default = "1024"
+}
+
+variable "email" {
+  type = string
 }

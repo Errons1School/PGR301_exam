@@ -21,10 +21,6 @@ module "alarm-b"  {
   alarm_name          = "To many failed text scan request"
   metric_name         = "crash_scan_text.count"
   comparison_operator = "GreaterThanThreshold"
-  threshold           = "10"
-  evaluation_periods  = "2"
-  period              = "60"
-  statistic           = "Sum"
   alarm_description   = "To many failed text scan request"
   protocol            = "email"
   endpoint            = var.email
@@ -37,10 +33,6 @@ module "alarm-c" {
   alarm_name          = "To many failed backup text scan request"
   metric_name         = "total_scan_text_backup.count"
   comparison_operator = "GreaterThanThreshold"
-  threshold           = "10"
-  evaluation_periods  = "2"
-  period              = "60"
-  statistic           = "Sum"
   alarm_description   = "To many failed backup text scan request"
   protocol            = "email"
   endpoint            = var.email
