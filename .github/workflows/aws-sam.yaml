@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
       - uses: aws-actions/setup-sam@v2
-      - uses: aws-actions/configure-aws-credentials@v2
+      - uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -38,5 +38,5 @@ jobs:
           sam deploy --no-confirm-changeset --no-fail-on-empty-changeset \
             --s3-bucket ${{ env.AWS_SAM_S3_ARTIFACT }} --region ${{ secrets.AWS_REGION }} \
             --parameter-overrides BucketName=${{ env.AWS_SAM_S3_ARTIFACT }} Region=${{ secrets.AWS_REGION }} \
-            --stack-name ${{ env.AWS_STACK_NAME }} --capabilities CAPABILITY_NAMED_IAM
+            --stack-name ${{ env.AWS_STACK_NAME }} --capabilities CAPABILITY_IAM
           
