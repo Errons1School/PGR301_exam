@@ -39,4 +39,3 @@ jobs:
             --s3-bucket ${{ env.AWS_SAM_S3_ARTIFACT }} --region ${{ secrets.AWS_REGION }} \
             --parameter-overrides BucketName=${{ env.AWS_SAM_S3_ARTIFACT }} Region=${{ secrets.AWS_REGION }} \
             --stack-name ${{ env.AWS_STACK_NAME }} --capabilities CAPABILITY_IAM
-          

@@ -10,31 +10,26 @@
 | AWS_ALARM_EMAIL       | Regular email for sending alarms notifications too. | name@domain.no                                   |
 
 
-*Note: these are example keys collected from: [Managing access keys for IAM users](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
+*Note: these are example keys collected from: [AWS Docs: Managing access keys for IAM users](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
 
+## Del 1A:
 
+Kommentar: I denne oppgaven var det ønskelig å bytte navn på mapper og filer, 
+men flere steder i oppgave teksten bli original navnene nevnt i sammenheng med terminal kommandoer. 
+Derfor har jeg valgt å la de originale navne stå.
 
+For at sensor skal kunne få Action "AWS SAM" til å kjøre, gjør følgende:
+I filen `.github/workflows/aws-sam.yaml` må følgende gjøres:
+- Det er tre envirment varibler som må settes.
+    - **AWS_SAM_S3_ARTIFACT**: Navn på S3 bucket som lager sam artifact.
+    - **AWS_BUCKET_NAME**: Navn på S3 bucket som lages av sam som skal inneholde PPE bilder.
+    - **AWS_STACK_NAME**: Navn på stacken.
 
-
-Part 1:
-- added "AmazonS3FullAccess" to template.yaml
-
-sam build --use-container
-sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --s3-bucket ${{ env.AWS_SAM_S3_ARTIFACT }}
-
-explain github secrets 
-explain AWS_SAM_S3_ARTIFACT: pgr301-sam-bucket aka where the artifact saves it 
-
-      Events:
-        RekognitionProtectiveWear:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /
-            Method: get
-
-path is on purpose / for the URL to directly work from sam cli
-
-Part 2:
-note hardcoded regions in code!
-
+Utenfor prosjektet så må det gjøres to ting:
+- I GitHub actions må disse secrets være laget:
+    - **AWS_ACCESS_KEY_ID**
+    - **AWS_SECRET_ACCESS_KEY**
+    - **AWS_REGION**
+- I S3 bucket som ble laget av sam, så må det lastes opp noen bilder med PPE utstyr.
+Bildene ligger tilgjengelig i mappen `img/ppe/*`.
 
