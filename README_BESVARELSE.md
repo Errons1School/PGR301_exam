@@ -13,7 +13,6 @@
 *Note: these are example keys collected from: [AWS Docs: Managing access keys for IAM users](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
 
 ## Del 1A:
-
 Kommentar: I denne oppgaven var det ønskelig å bytte navn på mapper og filer, 
 men flere steder i oppgave teksten bli original navnene nevnt i sammenheng med terminal kommandoer. 
 Derfor har jeg valgt å la de originale navne stå.
@@ -33,3 +32,7 @@ Utenfor prosjektet så må det gjøres to ting:
 - I S3 bucket som ble laget av sam, så må det lastes opp noen bilder med PPE utstyr.
 Bildene ligger tilgjengelig i mappen `img/ppe/*`.
 
+## Del 1B:
+Oppgaven er løst og kan løses ifølge instruksjonene fra oppgave teksten.
+
+## Del 2
