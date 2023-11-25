@@ -25,15 +25,15 @@ jobs:
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_URI }}
           rev=$(git rev-parse --short HEAD) 
           docker build . -t app
-          docker tag app ${{ secrets.AWS_ECR_URI }}/candidate2014:$rev
-          docker tag app ${{ secrets.AWS_ECR_URI }}/candidate2014:latest
+          docker tag app ${{ secrets.AWS_ECR_URI }}:$rev
+          docker tag app ${{ secrets.AWS_ECR_URI }}:latest
           
       - name: Push Docker image
         if: github.ref_name == 'main'
         run: |
           rev=$(git rev-parse --short HEAD)
-          docker push ${{ secrets.AWS_ECR_URI }}/candidate2014:$rev
-          docker push ${{ secrets.AWS_ECR_URI }}/candidate2014:latest
+          docker push ${{ secrets.AWS_ECR_URI }}:$rev
+          docker push ${{ secrets.AWS_ECR_URI }}:latest
           
   terraform:
     name: "Terraform"
@@ -44,7 +44,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      IMAGE: ${{ secrets.AWS_ECR_URI }}/candidate2014:latest
+      IMAGE: ${{ secrets.AWS_ECR_URI }}:latest
       PREFIX: candidate2014
       AWS_ALARM_EMAIL: ${{ secrets.AWS_ALARM_EMAIL }}
       DIR: ./infra
