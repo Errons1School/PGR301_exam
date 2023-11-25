@@ -1,4 +1,18 @@
-2014
+# Eksamen PGR301 DevOps i skyen
+## Besvarelse fra kandidat 2014
+### Lise av GitHub Secrets benyttet:
+| Github Secrets        | Description                                         | Eksempel                                         |
+|-----------------------|-----------------------------------------------------|--------------------------------------------------|
+| AWS_ACCESS_KEY_ID     | AWS access key for aws cli.                         | \* AKIAIOSFODNN7EXAMPLE                          |
+| AWS_SECRET_ACCESS_KEY | AWS secret access key for aws cli.                  | \* wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY      |
+| AWS_REGION            | Region for deployment of resources.                 | eu-west-1                                        |
+| AWS_ECR_URI           | Base URI for ECR repository.                        | ***account***.dkr.ecr.***region***.amazonaws.com |
+| AWS_ALARM_EMAIL       | Regular email for sending alarms notifications too. | name@domain.no                                   |
+
+
+*Note: these are example keys collected from: [Managing access keys for IAM users](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
+
+
 
 
 

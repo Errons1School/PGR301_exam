@@ -13,7 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       AWS_SAM_S3_ARTIFACT: pgr301-sam-bucket
-      
+      AWS_BUCKET_NAME: candidate2014
+      AWS_STACK_NAME: candidate2014
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -33,4 +35,8 @@ jobs:
         working-directory: kjell/
         if: github.ref_name == 'main' && github.event_name == 'push'
         run: |
-          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --s3-bucket ${{ env.AWS_SAM_S3_ARTIFACT }}
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset \
+            --s3-bucket ${{ env.AWS_SAM_S3_ARTIFACT }} --region ${{ secrets.AWS_REGION }} \
+            --parameter-overrides BUCKET_NAME=${{ env.AWS_SAM_S3_ARTIFACT }} REGION=${{ secrets.AWS_REGION }}
+            --stack-name ${{ env.AWS_STACK_NAME }} 
+          
