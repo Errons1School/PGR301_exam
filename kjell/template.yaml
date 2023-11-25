@@ -6,6 +6,12 @@ Description: >
   Sample SAM Template for candidate2014
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Parameters:
+  BucketName:
+    Type: String
+  Region:
+    Type: String
+
 Globals:
   Function:
     Timeout: 60
@@ -26,6 +32,7 @@ Resources:
       CodeUri: hello_world/
       Handler: app.lambda_handler
       Runtime: python3.9
+      
       Architectures:
         - x86_64
       Policies:
